@@ -2,8 +2,7 @@ import React , { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Dimensions , StyleSheet, Text, View, Image, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
 import {Picker} from '@react-native-community/picker';
-import data from "../db/characters-info.json";
-import vision from "../db/vision.json";
+import {elementsImage, charactersImages, errorImage} from '../api/images';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,6 +41,8 @@ const styles = StyleSheet.create({
 
 export default function Home({ navigation}) {
 
+  const files = require('../api/details');
+  
   const [icons, setIcons] = useState([]);
   const [star, setStar] = useState(0);
   const [element, setElement] = useState("All");
@@ -70,11 +71,11 @@ export default function Home({ navigation}) {
 
   const filterStar = (option) => {
     let aux = [];
-    data.map( (data) => {
+    Object.keys(files).map( (data) => {
       if(option === 0){
-        aux.push(data.name);
-      }else if(data.star === option){
-          aux.push(data.name);
+        aux.push(data);
+      }else if(parseInt(files[data].character.rarity) === option){
+          aux.push(data);
       }
     });
     return aux;
@@ -82,11 +83,11 @@ export default function Home({ navigation}) {
 
   const filterElement = (option) => {
     let aux = [];
-    data.map( (data) => {
+    Object.keys(files).map( (data) => {
       if(option === "All"){
-        aux.push(data.name);
-      }else if(data.vision === option){
-          aux.push(data.name);
+        aux.push(data);
+      }else if(files[data].character.element.toLowerCase() === option){
+          aux.push(data);
       }
     });
     return aux;
@@ -95,23 +96,26 @@ export default function Home({ navigation}) {
   // Params -> Characters: list of characters to draw, option: true is to draw all characters, false is to draw only the characters in the list
   const getIconsFilter = (characters, option) => {
     let aux = [];
-    data.map( (data) => {
-      if(characters.includes(data.name) || option){
-        var icon =  
-          data.vision === "Pyro" ? require("../data/vision/Pyro.png") :
-          data.vision === "Hydro" ? require("../data/vision/Hydro.png") :
-          data.vision === "Electro" ? require("../data/vision/Electro.png") :
-          data.vision === "Cryo" ? require("../data/vision/Cryo.png") :
-          data.vision === "Anemo" ? require("../data/vision/Anemo.png") :
-          data.vision === "Geo" ? require("../data/vision/Geo.png") :
-          data.vision === "Dendro" ? require("../data/vision/Dendro.png") :
-          require("../data/vision/Error.png");
+    Object.keys(files).map((data) => {
+      if(characters.includes(data) || option){
+        var icon;
+        if(data === 'traveleranemo'){
+          icon = elementsImage['anemo'];
+        }else if(data === 'travelergeo'){
+          icon = elementsImage['geo'];
+        }else{
+          // icon =  elementsImage[files[data].character.element.toLowerCase()];
+          icon = ['pyro', 'hydro', 'electro', 'cryo', 'anemo', 'geo', 'dendro'].includes(files[data].character.element.toLowerCase()) ? elementsImage[files[data].character.element.toLowerCase()] : errorImage['elements'];
+        }
+        
         aux.push(
-          <TouchableOpacity key = {data.name} onPress={() => { goToCharacter(data.name);}}>
+          <TouchableOpacity key = {data} onPress={() => { goToCharacter(data);}}>
             <ImageBackground
-              source={{
-                uri: data.img,
-              }}
+              // source={{
+              //   uri: files[data].character.images.icon,
+              // }}
+              // source={require("../assets/characters/traveleranemo/icon.png")}
+              source={charactersImages[`${data}-icon`]}
               style={styles.imagen}
             >
               <Image

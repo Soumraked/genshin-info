@@ -9,9 +9,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // end Navigation
 
 // Screens
-import Home from './screens/home2';
+import Home from './screens/home';
 import Characters from './screens/characters';
-import Details from './screens/details2';
+import Details from './screens/details';
 // End Screens
 
 const Tab = createBottomTabNavigator();
@@ -59,8 +59,8 @@ export default function App() {
         >
           {/* <Tab.Screen name="Details" component={Details} options={{ tabBarVisible: false}} /> */}
 
-          <Tab.Screen name="Details" component={Details} />
           <Tab.Screen name="Home" component={Home} />
+          <Tab.Screen name="Details" component={Details} />
           <Tab.Screen name="Characters" component={Characters} />
         </Tab.Navigator>
       </NavigationContainer>

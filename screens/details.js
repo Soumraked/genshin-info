@@ -2,14 +2,37 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Dimensions , StyleSheet, Text, View, Image, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
 import {Picker} from '@react-native-community/picker';
-// import data from "../data/characters-info.json";
-import data from "../data/characters/klee.json";
+
+// import character from "../db/Spanish/characters/ganyu.json";
+// import talents from "../db/Spanish/talents/ganyu.json";
+// import constellations from "../db/Spanish/constellations/ganyu.json";
 
 //import for the collapsible/Expandable view
 import Collapsible from 'react-native-collapsible';
+import {charactersImages, errorImage} from '../api/images';
 
-export default function Details() {
-  const [character, setCharacter] = React.useState(data);
+export default function Details({ route}) {
+
+  const files = require('../api/details');
+
+  var character, talents, constellations, name = '';
+  if(route.params !== undefined){
+    name = route.params.name.toLowerCase().split(' ').join('');
+  }
+  if(route.params !== undefined && Object.keys(files).includes(name)){
+    character = files[name].character;
+    talents = files[name].talents;
+    constellations = files[name].constellations;
+  }else{
+    name = 'error';
+  }
+
+  // const name = route.params !== undefined ? route.params.name : 'ganyu';
+  
+
+  // const character = require("../data/Spanish/characters/"+name+".json");
+  // const talents = require("../data/Spanish/talents/"+name+".json");
+  // const constellations = require("../data/Spanish/constellations/"+name+".json");
 
   const collapsedInitialState = false;
 
@@ -29,208 +52,124 @@ export default function Details() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      {
+        name === '' ? (
+          <Text> Cargando... </Text>
+        ) : name === 'error' ? (
+          <Text> Personaje no encontrado :c </Text>
+        ) : (
+          <ScrollView style={styles.scrollView}>
 
-        <View style={styles.view}>
-          <View style={styles.viewImage}>
-            <Image
-              resizeMethod='auto'
-              source={{
-                uri: character.img,
-              }}
-              style={styles.image}
-            >
-            </Image>
-          </View>
-          <View style={styles.viewInfo}>
-            <Text> Nombre: {character.name} </Text>
-            <Text> Vision: {character.vision} </Text>
-            <Text> Rareza: {character.star} </Text>
-            <Text> Arma: {character.weapon} </Text>
-            <Text> Cumpleaños: {character.birthday} </Text>
-            <Text> Constelación: {character.astrolabeName} </Text>
-            <Text> Afiliación: {character.allegiance} </Text>
-          </View>
-        </View>
-        
-        <TouchableOpacity onPress={toggleExpandedProfile}>
-          <View style={styles.collapsed}>
-            <View style={styles.collapsedTitle}>
-              <Text style={styles.viewProfile}> Perfil </Text>
+            <View style={styles.view}>
+              <View style={styles.viewImage}>
+                <Image
+                  resizeMethod='auto'
+                  source={charactersImages[`${name}-icon`]}
+                  style={styles.image}
+                >
+                </Image>
+              </View>
+              <View style={styles.viewInfo}>
+                <Text> Nombre: {character.name} </Text>
+                <Text> Título: {character.title} </Text>
+                <Text> Vision: {character.element} </Text>
+                <Text> Rareza: {character.rarity} </Text>
+                <Text> Arma: {character.weapontype} </Text>
+                <Text> Cumpleaños: {character.birthday} </Text>
+                <Text> Constelación: {character.constellation} </Text>
+                <Text> Afiliación: {character.affiliation} </Text>
+              </View>
             </View>
-            <View style={styles.collapsedIcon}>
-              <Text> { collapsedProfile ? 'Mostrar' : 'Ocultar'} </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <Collapsible collapsed={collapsedProfile} align="center">
-          <View style={styles.viewProfile}>
-            <Text> {character.profile} </Text>
-          </View>
-        </Collapsible>
 
-        <TouchableOpacity onPress={toggleExpandedTalents}>
-          <View style={styles.collapsed}>
-            <View style={styles.collapsedTitle}>
-              <Text style={styles.viewProfile}> Talentos </Text>
-            </View>
-            <View style={styles.collapsedIcon}>
-              <Text> { collapsedTalents ? 'Mostrar' : 'Ocultar'} </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <Collapsible collapsed={collapsedTalents} align="center">
-          <View style={styles.viewInfoTwoSection}>
-            <View style={styles.viewInfoTwoSectionImage}>
-              <Image
-                resizeMethod='auto'
-                source={{
-                  uri: character.talents.normalAttack.image,
-                }}
-                style={styles.imageTalent}
-              ></Image>
-              <Text> {character.talents.normalAttack.name} </Text>
-            </View>
-            <View style={styles.viewInfoTwoSectionText}>
-              <Text> Ataque normal: {character.talents.normalAttack.normal} </Text>
-              <Text> Ataque cargado: {character.talents.normalAttack.charged} </Text>
-              <Text> Ataque descendiente: {character.talents.normalAttack.plunging} </Text>
-            </View>
-          </View>
-          <View style={styles.viewInfoTwoSection}>
-            <View style={styles.viewInfoTwoSectionImage}>
-              <Image
-                resizeMethod='auto'
-                source={{
-                  uri: character.talents.elementalSkill.image,
-                }}
-                style={styles.imageTalent}
-              ></Image>
-              <Text> {character.talents.elementalSkill.name} </Text>
-            </View>
-            <View style={styles.viewInfoTwoSectionText}>
-              <Text> {character.talents.elementalSkill.desc} </Text>
-            </View>
-          </View>
-          <View style={styles.viewInfoTwoSection}>
-            <View style={styles.viewInfoTwoSectionImage}>
-              <Image
-                resizeMethod='auto'
-                source={{
-                  uri: character.talents.ultimateSkill.image,
-                }}
-                style={styles.imageTalent}
-              ></Image>
-              <Text> {character.talents.ultimateSkill.name} </Text>
-            </View>
-            <View style={styles.viewInfoTwoSectionText}>
-              <Text> {character.talents.ultimateSkill.desc} </Text>
-            </View>
-          </View>
-          {
-            character.talents.sprint.name !== "" && (
-              <View style={styles.viewInfoTwoSection}>
-                <View style={styles.viewInfoTwoSectionImage}>
-                  <Image
-                    resizeMethod='auto'
-                    source={{
-                      uri: character.talents.sprint.image,
-                    }}
-                    style={styles.imageTalent}
-                  ></Image>
-                  <Text> {character.talents.sprint.name} </Text>
+            <TouchableOpacity onPress={toggleExpandedProfile}>
+              <View style={styles.collapsed}>
+                <View style={styles.collapsedTitle}>
+                  <Text style={styles.viewProfile}> Perfil </Text>
                 </View>
-                <View style={styles.viewInfoTwoSectionText}>
-                  <Text> {character.talents.sprint.desc} </Text>
+                <View style={styles.collapsedIcon}>
+                  <Text> { collapsedProfile ? 'Mostrar' : 'Ocultar'} </Text>
                 </View>
               </View>
-            )
-          }
-          <View style={styles.viewInfoTwoSection}>
-            <View style={styles.viewInfoTwoSectionImage}>
-              <Image
-                resizeMethod='auto'
-                source={{
-                  uri: character.talents.passive1.image,
-                }}
-                style={styles.imageTalent}
-              ></Image>
-              <Text> {character.talents.passive1.name} </Text>
-            </View>
-            <View style={styles.viewInfoTwoSectionText}>
-              <Text> {character.talents.passive1.desc} </Text>
-            </View>
-          </View>
-          <View style={styles.viewInfoTwoSection}>
-            <View style={styles.viewInfoTwoSectionImage}>
-              <Image
-                resizeMethod='auto'
-                source={{
-                  uri: character.talents.passive2.image,
-                }}
-                style={styles.imageTalent}
-              ></Image>
-              <Text> {character.talents.passive2.name} </Text>
-            </View>
-            <View style={styles.viewInfoTwoSectionText}>
-              <Text> {character.talents.passive2.desc} </Text>
-            </View>
-          </View>
-          <View style={styles.viewInfoTwoSection}>
-          <View style={styles.viewInfoTwoSectionImage}>
-            <Image
-              resizeMethod='auto'
-              source={{
-                uri: character.talents.fieldSkill.image,
-              }}
-              style={styles.imageTalent}
-            ></Image>
-            <Text> {character.talents.fieldSkill.name} </Text>
-          </View>
-          <View style={styles.viewInfoTwoSectionText}>
-            <Text> {character.talents.fieldSkill.desc} </Text>
-          </View>
-        </View>
-        </Collapsible>
+            </TouchableOpacity>
+            <Collapsible collapsed={collapsedProfile} align="center">
+              <View style={styles.viewProfile}>
+                <Text> {character.description} </Text>
+              </View>
+            </Collapsible>
 
-        <TouchableOpacity onPress={toggleExpandedConstellations}>
-          <View style={styles.collapsed}>
-            <View style={styles.collapsedTitle}>
-              <Text>Constelaciones</Text>
-            </View>
-            <View style={styles.collapsedIcon}>
-              <Text> { collapsedConstellations ? 'Mostrar' : 'Ocultar'} </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <Collapsible collapsed={collapsedConstellations} align="center">
-          {
-            [1,2,3,4,5,6].map( (i) => {
-              return (
-                <View style={styles.viewInfoTwoSection} key={i}>
-                  <View style={styles.viewInfoTwoSectionImage}>
-                    <Image
-                      resizeMethod='auto'
-                      source={{
-                        uri: character.constellations[i].img,
-                      }}
-                      style={styles.imageTalent}
-                    ></Image>
-                    <Text> {character.constellations[i].name} </Text>
-                  </View>
-                  <View style={styles.viewInfoTwoSectionText}>
-                    <Text> {character.constellations[i].effect} </Text>
-                  </View>
+            <TouchableOpacity onPress={toggleExpandedTalents}>
+              <View style={styles.collapsed}>
+                <View style={styles.collapsedTitle}>
+                  <Text style={styles.viewProfile}> Talentos </Text>
                 </View>
-              )
-            })
-          }
-        </Collapsible>      
+                <View style={styles.collapsedIcon}>
+                  <Text> { collapsedTalents ? 'Mostrar' : 'Ocultar'} </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            <Collapsible collapsed={collapsedTalents} >
+              {
+                Object.keys(talents).slice(1).map((item) => {
+                  return(
+                    <View key={item} style={styles.viewTalent}>
+                      <View style={styles.viewTalentTitle}>
+                        <Image
+                          resizeMethod='auto'
+                          // source={{
+                          //   uri: talents[item].image,
+                          // }}
+                          source={charactersImages[`${name}-${item}`]}
+                          style={styles.imageTalent}
+                        ></Image>
+                        <Text style={styles.viewTalentText}> {talents[item].name} </Text>
+                      </View>
+                      <View style={styles.viewTalentBody}>
+                        <Text > {talents[item].info} </Text>
+                      </View>
+                    </View>
+                  )
+                })
+              }
+            </Collapsible>
 
-      </ScrollView>
-      <StatusBar 
-        hidden={true} 
-        style="auto" 
+            <TouchableOpacity onPress={toggleExpandedConstellations}>
+              <View style={styles.collapsed}>
+                <View style={styles.collapsedTitle}>
+                  <Text>Constelaciones</Text>
+                </View>
+                <View style={styles.collapsedIcon}>
+                  <Text> { collapsedConstellations ? 'Mostrar' : 'Ocultar'} </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            <Collapsible collapsed={collapsedConstellations} align="center">
+              {
+                Object.keys(constellations).slice(1).map((item) => {
+                  return (
+                    <View key={item} style={styles.viewTalent}>
+                      <View style={styles.viewTalentTitle}>
+                        <Image
+                          resizeMethod='auto'
+                          source={charactersImages[`${name}-${item}`]}
+                          style={styles.imageTalent}
+                        ></Image>
+                        <Text style={styles.viewTalentText}> {constellations[item].name} </Text>
+                      </View>
+                      <View style={styles.viewTalentBody}>
+                        <Text > {constellations[item].effect} </Text>
+                      </View>
+                    </View>
+                  )
+                })
+              }
+            </Collapsible>
+
+          </ScrollView>
+        )
+      }
+      <StatusBar
+        hidden={true}
+        style="auto"
       />
     </View>
   );
@@ -242,47 +181,53 @@ const styles = StyleSheet.create({
     backgroundColor: '#1966e3',
     alignItems: 'center',
     justifyContent: 'center',
+    marginHorizontal:  Dimensions.get('window').width*0.02,
+    marginVertical:  Dimensions.get('window').height*0.01,
   },
   scrollView: {
     padding: StatusBar.currentHeight,
   },
   view: {
     flexDirection: "row",
-    justifyContent: "center",
     flexWrap: 'wrap',
-    marginTop: Dimensions.get('window').height*0.01,
+    alignContent: "space-between",
+    alignItems: "center",
   },
   image: {
     width: Dimensions.get('window').width*0.4,
-    height: Dimensions.get('window').height*0.3,
+    height: Dimensions.get('window').height*0.25,
   },
   viewImage:{
-    width: Dimensions.get('window').width*0.45,
+    // width: Dimensions.get('window').width*0.4,
   },
   viewInfo: {
-    marginTop: Dimensions.get('window').height*0.03,
-    width: Dimensions.get('window').width*0.45,
+    width: Dimensions.get('window').width*0.55,
   },
   viewProfile: {
     marginHorizontal: Dimensions.get('window').height*0.03,
-    marginVertical: Dimensions.get('window').height*0.01,
+    // marginVertical: Dimensions.get('window').height*0.01,
   },
-  viewInfoTwoSection: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    flexWrap: 'wrap',
+  viewTalent: {
     marginHorizontal: Dimensions.get('window').height*0.01,
+    // flexDirection: "row",
+    // justifyContent: "flex-end",
+    // alignItems: "center",
+    // flexWrap: 'wrap',
+  },
+  viewTalentTitle: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: 'wrap',
+    marginHorizontal: Dimensions.get('window').height*0.03,
     marginVertical: Dimensions.get('window').height*0.01,
   },
-  viewInfoTwoSectionImage: {
-    justifyContent: "center",
-    flexWrap: 'wrap',
-    alignItems: "center",
-    width: Dimensions.get('window').width*0.2,
+  viewTalentText: {
+    width: Dimensions.get('window').width*0.4,
   },
-  viewInfoTwoSectionText: {
-    justifyContent: "center",
-    width: Dimensions.get('window').width*0.55,
+  viewTalentBody: {
+    justifyContent: "flex-start",
+    width: Dimensions.get('window').width*0.9,
   },
   imageTalent: {
     width: Dimensions.get('window').width*0.2,
